@@ -6,4 +6,5 @@ pydantic-settings
 python-dotenv
 passlib[bcrypt]
 python-jose
+firebase-admin
 

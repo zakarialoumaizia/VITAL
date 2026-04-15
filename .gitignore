@@ -11,6 +11,11 @@ venv/
 # Environment variables
 .env
 
+# Firebase credentials
+firebase-credentials.json
+*.json.private
+service-account-key.json
+
 # IDE
 .vscode/
 .idea/
