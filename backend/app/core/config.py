@@ -1,4 +1,4 @@
-"""Application configuration."""
+
 
 import os
 from datetime import timedelta
@@ -9,7 +9,7 @@ from pydantic import ConfigDict
 
 
 class Settings(BaseSettings):
-    """Application settings."""
+    
 
     # Project
     PROJECT_NAME: str = "VITAL API"

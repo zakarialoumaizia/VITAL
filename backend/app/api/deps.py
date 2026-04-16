@@ -1,4 +1,4 @@
-"""Dependency injection for authentication and database."""
+
 
 from typing import Optional, Any
 from fastapi import Depends, HTTPException, status
@@ -16,19 +16,7 @@ security = HTTPBearer()
 def get_current_user(
     credentials: Any = Depends(security), db: Session = Depends(get_db)
 ) -> User:
-    """
-    Get current authenticated user from JWT token.
-
-    Args:
-        credentials: HTTP bearer token
-        db: Database session
-
-    Returns:
-        User: Current user record
-
-    Raises:
-        HTTPException: If token is invalid or user not found
-    """
+    
     token = credentials.credentials
 
     try:
@@ -61,18 +49,7 @@ def get_current_user(
 def get_current_admin(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    """
-    Get current user and verify they have admin role.
-
-    Args:
-        current_user: Current authenticated user
-
-    Returns:
-        User: Current admin user
-
-    Raises:
-        HTTPException: If user is not an admin
-    """
+    
     if current_user.user_role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -85,16 +62,7 @@ def get_current_user_optional(
     credentials: Optional[Any] = Depends(security),
     db: Session = Depends(get_db),
 ) -> Optional[User]:
-    """
-    Get current user if authenticated, otherwise return None.
-
-    Args:
-        credentials: HTTP bearer token (optional)
-        db: Database session
-
-    Returns:
-        User: Current user or None
-    """
+    
     if not credentials:
         return None
 

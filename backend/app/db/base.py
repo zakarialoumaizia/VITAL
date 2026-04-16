@@ -1,5 +1,4 @@
-"""Database initialization and base classes."""
-
+from app.models.event import Event
 from app.models.user import (
     Base,
     User,
@@ -10,4 +9,4 @@ from app.models.user import (
     Fingerprint,
 )
 
-__all__ = ["Base", "User", "Admin", "Member", "Partner", "Session", "Fingerprint"]
+__all__ = ["Base", "User", "Admin", "Member", "Partner", "Session", "Fingerprint", "Event"]

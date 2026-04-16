@@ -16,11 +16,12 @@ from app.crud.user import (
     FingerprintCRUD,
 )
 from app.schemas.user import (
-    UserRegister,
+    TokenResponse,
     UserLogin,
     UserOAuth2,
-    TokenResponse,
+    UserRegister,
     UserResponse,
+    UserUpdate,
 )
 from app.core.security import AuthService
 from app.core.config import settings
@@ -248,8 +249,24 @@ async def google_auth(
 async def get_current_user_info(
     current_user: User = Depends(get_current_user),
 ) -> UserResponse:
+    
+    return current_user
 
-    return UserResponse.from_orm(current_user)
+
+@router.put("/profile", response_model=UserResponse)
+async def update_user_profile(
+    user_data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserResponse:
+    
+    for field, value in user_data.dict(exclude_unset=True).items():
+        setattr(current_user, field, value)
+    
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 
 @router.post("/logout")

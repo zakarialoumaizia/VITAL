@@ -1,7 +1,4 @@
-"""
-Database configuration.
-Uses SQLAlchemy for all storage.
-"""
+
 
 from typing import Optional
 from pydantic_settings import BaseSettings
@@ -10,7 +7,7 @@ import os
 
 
 class DatabaseConfig(BaseSettings):
-    """Database configuration."""
+    
 
     # Database settings
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./test.db")
@@ -27,5 +24,5 @@ class DatabaseConfig(BaseSettings):
 
 @lru_cache()
 def get_database_config() -> DatabaseConfig:
-    """Get database configuration (cached)."""
+    
     return DatabaseConfig()

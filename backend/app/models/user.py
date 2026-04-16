@@ -1,4 +1,4 @@
-"""Database models for users and roles."""
+
 
 from datetime import datetime
 from enum import Enum
@@ -19,15 +19,16 @@ Base = declarative_base()
 
 
 class UserRole(str, Enum):
-    """User role enumeration."""
+    
 
     ADMIN = "admin"
     MEMBER = "member"
     PARTNER = "partner"
+    SPONSOR = "sponsor"
 
 
 class User(Base):
-    """User model for authentication."""
+    
 
     __tablename__ = "users"
 
@@ -48,6 +49,7 @@ class User(Base):
     admin = relationship("Admin", back_populates="user", uselist=False)
     member = relationship("Member", back_populates="user", uselist=False)
     partner = relationship("Partner", back_populates="user", uselist=False)
+    sponsor = relationship("Sponsor", back_populates="user", uselist=False)
     fingerprints = relationship(
         "Fingerprint", back_populates="user", cascade="all, delete-orphan"
     )
@@ -59,7 +61,7 @@ class User(Base):
 
 
 class Admin(Base):
-    """Admin user model."""
+    
 
     __tablename__ = "admins"
 
@@ -75,7 +77,7 @@ class Admin(Base):
 
 
 class Member(Base):
-    """Member user model."""
+    
 
     __tablename__ = "members"
 
@@ -90,7 +92,7 @@ class Member(Base):
 
 
 class Partner(Base):
-    """Partner user model."""
+    
 
     __tablename__ = "partners"
 
@@ -106,8 +108,37 @@ class Partner(Base):
     user = relationship("User", back_populates="partner")
 
 
+class Sponsor(Base):
+    
+
+    __tablename__ = "sponsors"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    company_name = Column(String(255), nullable=True)
+    tier = Column(String(50), default="silver")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="sponsor")
+
+
+class ContactMessage(Base):
+    
+
+    __tablename__ = "contact_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    subject = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    sender = relationship("User")
+
+
 class Session(Base):
-    """User session model for tracking active sessions."""
+    
 
     __tablename__ = "sessions"
 
@@ -126,7 +157,7 @@ class Session(Base):
 
 
 class Fingerprint(Base):
-    """Device fingerprint model for tracking user devices."""
+    
 
     __tablename__ = "fingerprints"
 
@@ -145,3 +176,23 @@ class Fingerprint(Base):
 
     # Relationships
     user = relationship("User", back_populates="fingerprints")
+class VaultDocument(Base):
+    
+
+    __tablename__ = "vault_documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    filename = Column(String(255), nullable=False)
+    file_type = Column(String(100))
+    file_size = Column(Integer)
+    
+    # Encryption Metadata
+    encrypted_path = Column(String(512), nullable=False)
+    encrypted_data_key = Column(Text, nullable=False) # Base64
+    ephemeral_pub_key = Column(Text, nullable=False) # Base64
+    nonce = Column(String(64), nullable=False) # Base64
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User")

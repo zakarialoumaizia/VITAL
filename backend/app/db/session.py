@@ -1,4 +1,4 @@
-"""Database session configuration."""
+
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -19,7 +19,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db() -> Session:
-    """Get database session for dependency injection."""
+    
     db = SessionLocal()
     try:
         yield db

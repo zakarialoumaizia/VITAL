@@ -15,6 +15,8 @@ logging.getLogger("sqlalchemy.dialects").setLevel(logging.WARNING)
 from app.api.v1 import api
 from app.db.base import Base
 from app.db.session import engine
+from Agent.Planner.architect_agent import router as planner_router
+from Agent.DesignM.liaison_agent import router as design_master_router
 
 logger = logging.getLogger(__name__)
 
@@ -39,3 +41,5 @@ app.add_middleware(
 
 # Include routers
 app.include_router(api.router)
+app.include_router(planner_router)
+app.include_router(design_master_router)

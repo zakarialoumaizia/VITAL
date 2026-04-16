@@ -1,7 +1,4 @@
-"""
-Fingerprint endpoints for device management and tracking.
-Uses SQL database for storage.
-"""
+
 
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -24,14 +21,7 @@ async def get_user_devices(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Get all registered devices (fingerprints) for current user.
-
-    Returns list of all devices the user has registered, including:
-    - Device name, type (mobile/desktop/tablet)
-    - OS and browser information
-    - Trust status and last activity
-    """
+    
     fingerprints = FingerprintCRUD.get_user_fingerprints(db, current_user.id)
     return fingerprints if fingerprints else []
 
@@ -41,11 +31,7 @@ async def get_trusted_devices(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Get only trusted devices for current user.
-
-    Trusted devices allow automatic login without additional verification.
-    """
+    
     fingerprints = FingerprintCRUD.get_trusted_fingerprints(db, current_user.id)
     return fingerprints if fingerprints else []
 
@@ -56,16 +42,7 @@ async def register_device(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Register a new device fingerprint.
-
-    The device fingerprint is a unique identifier based on:
-    - Browser/app user agent
-    - Device properties
-    - Canvas fingerprinting (if available)
-
-    If device already registered, updates last_seen instead of creating duplicate.
-    """
+    
     # Check if fingerprint already exists
     existing = FingerprintCRUD.get_fingerprint_by_hash(
         db, fingerprint_data.fingerprint_hash
@@ -109,12 +86,7 @@ async def mark_device_trusted(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Mark device as trusted.
-
-    Trusted devices can bypass additional verification steps during login.
-    Only the device owner can trust their own devices.
-    """
+    
     # Verify ownership
     device = db.query(Fingerprint).filter_by(id=int(device_id)).first()
 
@@ -144,12 +116,7 @@ async def delete_device(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Delete a registered device.
-
-    Removes device fingerprint from the system.
-    Only the device owner can delete their own devices.
-    """
+    
     # Verify ownership
     device = db.query(Fingerprint).filter_by(id=int(device_id)).first()
 

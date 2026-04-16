@@ -1,4 +1,4 @@
-"""Pydantic schemas for user validation."""
+
 
 from datetime import datetime, date
 from typing import Optional
@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    """Base user schema."""
+    
 
     email: EmailStr
     first_name: str
@@ -15,7 +15,7 @@ class UserBase(BaseModel):
 
 
 class UserRegister(UserBase):
-    """User registration schema."""
+    
 
     password: str = Field(
         ..., min_length=8, description="Password must be at least 8 characters"
@@ -27,16 +27,22 @@ class UserRegister(UserBase):
         None, description="Device fingerprint hash for device tracking"
     )
 
+class UserUpdate(BaseModel):
+    
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    date_of_birth: Optional[date] = None
+
 
 class UserLogin(BaseModel):
-    """User login schema."""
+    
 
     email: EmailStr
     password: str
 
 
 class UserOAuth2(BaseModel):
-    """User OAuth2 login schema."""
+    
 
     google_id: str
     email: EmailStr
@@ -46,7 +52,7 @@ class UserOAuth2(BaseModel):
 
 
 class UserResponse(UserBase):
-    """User response schema."""
+    
 
     id: int
     user_role: str
@@ -60,7 +66,7 @@ class UserResponse(UserBase):
 
 
 class TokenResponse(BaseModel):
-    """JWT token response."""
+    
 
     access_token: str
     refresh_token: Optional[str] = None
@@ -69,7 +75,7 @@ class TokenResponse(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    """JWT token payload."""
+    
 
     sub: int  # User ID
     email: str
@@ -78,7 +84,7 @@ class TokenPayload(BaseModel):
 
 
 class AdminCreate(BaseModel):
-    """Admin creation schema."""
+    
 
     user_id: int
     bio: Optional[str] = None
@@ -86,7 +92,7 @@ class AdminCreate(BaseModel):
 
 
 class AdminResponse(BaseModel):
-    """Admin response schema."""
+    
 
     id: int
     user_id: int
@@ -100,14 +106,14 @@ class AdminResponse(BaseModel):
 
 
 class MemberCreate(BaseModel):
-    """Member creation schema."""
+    
 
     user_id: int
     bio: Optional[str] = None
 
 
 class MemberResponse(BaseModel):
-    """Member response schema."""
+    
 
     id: int
     user_id: int
@@ -120,7 +126,7 @@ class MemberResponse(BaseModel):
 
 
 class PartnerCreate(BaseModel):
-    """Partner creation schema."""
+    
 
     user_id: int
     company_name: Optional[str] = None
@@ -129,7 +135,7 @@ class PartnerCreate(BaseModel):
 
 
 class PartnerResponse(BaseModel):
-    """Partner response schema."""
+    
 
     id: int
     user_id: int
@@ -144,7 +150,7 @@ class PartnerResponse(BaseModel):
 
 
 class SessionCreate(BaseModel):
-    """Session creation schema."""
+    
 
     user_id: int
     device_fingerprint: Optional[str] = None
@@ -153,7 +159,7 @@ class SessionCreate(BaseModel):
 
 
 class SessionResponse(BaseModel):
-    """Session response schema."""
+    
 
     id: int
     user_id: int
@@ -164,7 +170,7 @@ class SessionResponse(BaseModel):
 
 
 class FingerprintCreate(BaseModel):
-    """Fingerprint creation schema."""
+    
 
     fingerprint_hash: str
     device_name: Optional[str] = None
@@ -177,7 +183,7 @@ class FingerprintCreate(BaseModel):
 
 
 class FingerprintResponse(BaseModel):
-    """Fingerprint response schema."""
+    
 
     id: int
     user_id: int
@@ -194,6 +200,17 @@ class FingerprintResponse(BaseModel):
     ip_address: Optional[str]
     created_at: datetime
     expires_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class VaultDocumentResponse(BaseModel):
+    
+    id: int
+    filename: str
+    file_type: Optional[str]
+    file_size: Optional[int]
+    created_at: datetime
 
     class Config:
         from_attributes = True
