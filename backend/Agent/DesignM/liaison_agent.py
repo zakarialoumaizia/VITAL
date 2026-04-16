@@ -86,19 +86,39 @@ def _chat(client, system, user, temp=0.75):
 
 # ── Intent detection ─────────────────────────────────────────
 INTENT_SYSTEM = """
-Determine if the user wants an Instagram post, sponsoring help, or is just greeting.
-Return JSON format: {"intent": "instagram" | "sponsoring" | "greeting" | "unclear", "event_description": "..."}
+You are the intent analyzer for VITAL.
+Analyze the user input and determine their goal.
+- If they greet you: {"intent": "greeting"}
+- If they describe an event (even briefly): {"intent": "instagram", "event_description": "USER_DESCRIPTION"}
+- If they ask for sponsorship help: {"intent": "sponsoring", "event_description": "USER_DESCRIPTION"}
+
+CRITICAL: If the user provides ANY details about a hackathon, workshop, or event, DO NOT return 'unclear'. 
+Extract the details into 'event_description'.
+
+Return ONLY strict valid JSON.
 """
 
 def detect_intent(client, user_input):
     raw = _chat(client, INTENT_SYSTEM, user_input, temp=0.1)
+    # Remove markdown code blocks if AI adds them
+    raw = raw.replace("```json", "").replace("```", "").strip()
     m = re.search(r"\{.*\}", raw, re.DOTALL)
     if m:
         try:
-            return json.loads(m.group())
+            data = json.loads(m.group())
+            # Ensure we always have an intent if we have a description
+            if data.get("event_description") and data.get("intent") == "unclear":
+                data["intent"] = "instagram"
+            return data
         except Exception:
             pass
-    return {"intent": "unclear", "event_description": None, "missing": "description événement"}
+    
+    # Heuristic fallback: if input looks like a description (more than 3 words), assume it is
+    words = user_input.split()
+    if len(words) > 3:
+        return {"intent": "instagram", "event_description": user_input}
+        
+    return {"intent": "unclear", "event_description": None, "missing": "description d'événement"}
 
 GREET_REPLY = """
 Hello! I am DesignM, your VITAL design and branding assistant. 
@@ -124,7 +144,7 @@ def run_liaison_agent(description, event_type="workshop", company="TPL — ISIMA
         return {
             "type": "unclear",
             "reply": (
-                "📝 Il me faut un peu plus de détails pour générer le contenu.\n\n"
+                "Il me faut un peu plus de détails pour générer le contenu.\n\n"
                 f"Il manque : **{missing}**\n\n"
                 "Exemple valide :\n"
                 "> *\"Workshop React.js pour débutants, 80 participants, ISSATKR\"*"
