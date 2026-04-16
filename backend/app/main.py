@@ -4,27 +4,28 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.v1 import api
-from backend.app.core.firebase import FirebaseService
-
 # Load environment variables from .env file
 load_dotenv()
 
+# Configure logging - suppress verbose SQLAlchemy logs BEFORE importing database
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
+logging.getLogger("sqlalchemy.dialects").setLevel(logging.WARNING)
+
+from app.api.v1 import api
+from app.db.base import Base
+from app.db.session import engine
+
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="VITAL API")
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
-
-# Initialize Firebase on startup
-@app.on_event("startup")
-async def startup_event():
-    """Initialize Firebase Admin SDK on application startup."""
-    try:
-        FirebaseService.initialize()
-        logger.info("Firebase initialized successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize Firebase: {e}")
-        raise
+app = FastAPI(
+    title="VITAL API",
+    description="Authentication and authorization API",
+    version="1.0.0",
+)
 
 
 # Add CORS middleware
@@ -37,4 +38,4 @@ app.add_middleware(
 )
 
 # Include routers
-# app.include_router(api.router, prefix="/api/v1")
+app.include_router(api.router)
